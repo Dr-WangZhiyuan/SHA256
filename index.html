@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHA-256 Hash Generator</title>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f0 50%, #dce3ed 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #ffffff;
+            border: 1px solid #e0e4ea;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            color: #2563eb;
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 2rem;
+        }
+
+        .subtitle {
+            color: #64748b;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-weight: 500;
+            color: #64748b;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: color 0.2s, border-color 0.2s;
+            background: none;
+            font-size: 0.95rem;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .tab:hover {
+            color: #2563eb;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .tab.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #334155;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: #f8fafc;
+            color: #1e293b;
+            font-size: 1rem;
+            font-family: 'Consolas', monospace;
+            resize: vertical;
+            min-height: 80px;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .drop-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s, background 0.3s;
+            background: #f8fafc;
+        }
+
+        .drop-zone:hover {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .drop-zone.dragover {
+            border-color: #2563eb;
+            background: #dbeafe;
+        }
+
+        .drop-zone-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .drop-zone-text {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        .drop-zone-text strong {
+            color: #2563eb;
+        }
+
+        .file-info {
+            margin-top: 12px;
+            padding: 10px 15px;
+            background: #eff6ff;
+            border-radius: 8px;
+            color: #1e40af;
+            font-size: 0.85rem;
+            display: none;
+            word-break: break-all;
+        }
+
+        .file-info.visible {
+            display: block;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 20px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .doraemon-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 5px 0;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .doraemon-wrapper img {
+            width: 110px;
+            transition: transform 0.3s;
+        }
+
+        .doraemon-wrapper:hover img {
+            transform: scale(1.08);
+        }
+
+        .doraemon-wrapper:active img {
+            transform: scale(0.95);
+        }
+
+        .doraemon-wrapper.reaching img {
+            animation: bounce 0.5s ease;
+        }
+
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+            60% { transform: translateY(5px) scale(1.05); }
+            100% { transform: translateY(0) scale(1); }
+        }
+
+        .doraemon-label {
+            margin-top: 5px;
+            color: #00a0e9;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+
+        .doraemon-wrapper:hover .doraemon-label {
+            color: #0080c0;
+        }
+
+        .output-group {
+            margin-top: 10px;
+        }
+
+        .output-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .output-label label {
+            margin-bottom: 0;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .copy-btn {
+            width: auto;
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            margin-bottom: 0;
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid #2563eb;
+            color: #2563eb;
+        }
+
+        .copy-btn:hover {
+            background: rgba(37, 99, 235, 0.2);
+            box-shadow: none;
+            transform: none;
+        }
+
+        .hash-output {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: #f1f5f9;
+            color: #0f766e;
+            font-size: 0.95rem;
+            font-family: 'Consolas', monospace;
+            word-break: break-all;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+
+        .loading {
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 25px;
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SHA-256 Hash Generator</h1>
+        <p class="subtitle">Pure Python implementation running in your browser via PyScript</p>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('text')">Text Input</div>
+            <div class="tab" onclick="switchTab('file')">File Upload</div>
+        </div>
+
+        <div id="tab-text" class="tab-content active">
+            <div class="input-group">
+                <label for="input-text">Input Message:</label>
+                <textarea id="input-text" placeholder="Enter text to hash..."></textarea>
+            </div>
+        </div>
+
+        <div id="tab-file" class="tab-content">
+            <div class="input-group">
+                <label>Upload a File:</label>
+                <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+                    <span class="drop-zone-icon">&#128196;</span>
+                    <p class="drop-zone-text">Drag & drop a file here, or <strong>click to browse</strong></p>
+                </div>
+                <input type="file" id="file-input">
+                <div class="file-info" id="file-info"></div>
+            </div>
+        </div>
+
+        <div class="doraemon-wrapper" id="doraemon-wrapper" py-click="generate_hash">
+            <img id="doraemon-img" src="imgs/doraemon_before.png" alt="Doraemon">
+            <div class="doraemon-label">Generate SHA-256 Hash</div>
+        </div>
+
+        <div class="output-group">
+            <div class="output-label">
+                <label>Hash Output (hex):</label>
+                <div class="btn-group">
+                    <button class="copy-btn" onclick="clearHash()">Clear</button>
+                    <button class="copy-btn" id="copy-btn" onclick="copyHash()">Copy</button>
+                </div>
+            </div>
+            <div class="hash-output" id="hash-output">
+                <span class="loading">Enter text or upload a file, then click generate...</span>
+            </div>
+        </div>
+
+        <footer>
+            &copy; Developed by Dr. Wang Zhiyuan for FTH387 Financial Cryptography<br>at Singapore University of Social Sciences (SUSS)
+        </footer>
+    </div>
+
+    <script type="py" src="./sha256.py" config='{"packages": []}'></script>
+    <script type="py">
+from pyscript import document
+from pyodide.ffi import create_proxy
+import js
+
+file_bytes = None
+
+def generate_hash(event=None):
+    output_el = document.querySelector("#hash-output")
+    wrapper = js.document.getElementById("doraemon-wrapper")
+    img_el = js.document.getElementById("doraemon-img")
+    active_tab = js.document.querySelector(".tab-content.active").id
+
+    wrapper.classList.add("reaching")
+
+    if active_tab == "tab-text":
+        message = document.querySelector("#input-text").value
+        hash_result = sha256(message)
+    elif active_tab == "tab-file":
+        global file_bytes
+        if file_bytes is None:
+            output_el.textContent = "No file selected."
+            wrapper.classList.remove("reaching")
+            return
+        hash_result = sha256(file_bytes)
+
+    def show_result(*args):
+        output_el.textContent = hash_result
+        wrapper.classList.remove("reaching")
+        if not js.window.marioMode:
+            img_el.src = "imgs/doraemon_after.png"
+        wrapper.dataset.clicked = "true"
+
+    js.setTimeout(create_proxy(show_result), 300)
+
+def on_file_loaded(event):
+    global file_bytes
+    array_buf = event.target.result
+    uint8 = js.Uint8Array.new(array_buf)
+    file_bytes = bytes(uint8)
+
+def on_file_selected(event):
+    global file_bytes
+    files = event.target.files
+    if files.length == 0:
+        return
+    f = files.item(0)
+    info_el = js.document.getElementById("file-info")
+    size_kb = f.size / 1024
+    if size_kb < 1024:
+        size_str = f"{size_kb:.1f} KB"
+    else:
+        size_str = f"{size_kb/1024:.2f} MB"
+    info_el.textContent = f"Selected: {f.name} ({size_str})"
+    info_el.classList.add("visible")
+
+    reader = js.FileReader.new()
+    reader.onload = create_proxy(on_file_loaded)
+    reader.readAsArrayBuffer(f)
+
+def on_drop(event):
+    event.preventDefault()
+    event.stopPropagation()
+    js.document.getElementById("drop-zone").classList.remove("dragover")
+    files = event.dataTransfer.files
+    if files.length == 0:
+        return
+    f = files.item(0)
+    info_el = js.document.getElementById("file-info")
+    size_kb = f.size / 1024
+    if size_kb < 1024:
+        size_str = f"{size_kb:.1f} KB"
+    else:
+        size_str = f"{size_kb/1024:.2f} MB"
+    info_el.textContent = f"Selected: {f.name} ({size_str})"
+    info_el.classList.add("visible")
+
+    global file_bytes
+    reader = js.FileReader.new()
+    reader.onload = create_proxy(on_file_loaded)
+    reader.readAsArrayBuffer(f)
+
+def on_dragover(event):
+    event.preventDefault()
+    js.document.getElementById("drop-zone").classList.add("dragover")
+
+def on_dragleave(event):
+    js.document.getElementById("drop-zone").classList.remove("dragover")
+
+file_input = js.document.getElementById("file-input")
+file_input.addEventListener("change", create_proxy(on_file_selected))
+
+drop_zone = js.document.getElementById("drop-zone")
+drop_zone.addEventListener("drop", create_proxy(on_drop))
+drop_zone.addEventListener("dragover", create_proxy(on_dragover))
+drop_zone.addEventListener("dragleave", create_proxy(on_dragleave))
+    </script>
+
+    <script>
+    let clickCount = 0;
+    window.marioMode = false;
+
+    document.getElementById('doraemon-wrapper').addEventListener('click', function() {
+        if (window.marioMode) return;
+        clickCount++;
+        if (clickCount >= 10 && document.getElementById('doraemon-img').src.includes('doraemon_after')) {
+            window.marioMode = true;
+            document.getElementById('doraemon-img').src = 'imgs/mario.png';
+        }
+    });
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        document.querySelectorAll('.tab')[tab === 'text' ? 0 : 1].classList.add('active');
+    }
+
+    function clearHash() {
+        document.getElementById('hash-output').innerHTML = '<span class="loading">Enter text or upload a file, then click generate...</span>';
+        document.getElementById('doraemon-img').src = 'imgs/doraemon_before.png';
+        delete document.getElementById('doraemon-wrapper').dataset.clicked;
+        window.marioMode = false;
+        clickCount = 0;
+    }
+
+    function copyHash() {
+        const output = document.getElementById('hash-output').textContent;
+        if (output && !output.includes('Enter text') && !output.includes('No file')) {
+            navigator.clipboard.writeText(output);
+            const btn = document.getElementById('copy-btn');
+            btn.textContent = 'Copied!';
+            setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+        }
+    }
+    </script>
+</body>
+</html>
